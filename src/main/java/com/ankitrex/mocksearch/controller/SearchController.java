@@ -22,20 +22,30 @@ public class SearchController {
 	@Autowired
 	SearchService searchService;
 
+	/**
+	 * search the keyword in index data, score, filter and rank it.
+	 * 
+	 * @param searchQuery - input query.
+	 * @param maxResults  - max results to return. default is 20 results.+
+	 * @return - List<SearchResult> - Matched data in descending order by score.
+	 */
 	@GetMapping("/search")
 	public List<SearchResult> search(@RequestParam(name = "query", required = true) String searchQuery,
 			@RequestParam(name = "maxResults", defaultValue = "20", required = false) Integer maxResults) {
 
 		long start = System.currentTimeMillis();
+
+		// if search query is less than 3 characters, throw an error.
 		if (searchQuery.length() < Constants.MINIMUM_TOKEN_LENGTH) {
 			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
 					"Search query must be atleast 3 characters long.");
 		}
-
-		List<SearchResult> results = searchService.performSearchOnIndex(searchQuery, maxResults);
-		long end = System.currentTimeMillis();
-		log.info(String.format("Time to search, score and rank: %dms", (end - start)));
 		
+		// perform search and return the results
+		List<SearchResult> results = searchService.performSearchOnIndex(searchQuery, maxResults);
+		
+		log.info(String.format("Time to search, score, filter and rank: %dms", (System.currentTimeMillis() - start)));
+
 		return results;
 	}
 }

@@ -35,7 +35,7 @@ public class IndexServiceImpl implements IndexService {
 
 	@Value("${index.source.file.path}")
 	private String filePath;
-	
+
 	@Value("${index.source.file.name}")
 	private String fileName;
 
@@ -45,16 +45,20 @@ public class IndexServiceImpl implements IndexService {
 
 	private SortedMap<String, List<Integer>> keywordInvertedIndex = new TreeMap<>();
 
+	// postconstruct to run method after all the beans are initialized
 	@Override
 	@PostConstruct
 	public void tokenizeAndIndexUserData() {
 
+		// read data from csv
 		users = readDataFromCsv(filePath + fileName);
-
+		
+		// generate indexes for all users
 		for (int i = 0; i < users.size(); i++) {
 
 			User user = users.get(i);
-
+			
+			// generate ngram tokens and store
 			List<String> ngramTokens = tokenizerUtility.tokenizeUserNgram(user);
 			for (String token : ngramTokens) {
 
@@ -62,9 +66,10 @@ public class IndexServiceImpl implements IndexService {
 				ngramInvertedIndex.get(token).add(i);
 			}
 			
+			// generate keyword tokens and store
 			List<String> keywordTokens = tokenizerUtility.tokenizeUserKeyword(user);
-			for(String token : keywordTokens) {
-				
+			for (String token : keywordTokens) {
+
 				keywordInvertedIndex.putIfAbsent(token, new ArrayList<Integer>());
 				keywordInvertedIndex.get(token).add(i);
 			}
@@ -82,7 +87,6 @@ public class IndexServiceImpl implements IndexService {
 
 		return ngramInvertedIndex;
 	}
-	
 
 	@Override
 	public SortedMap<String, List<Integer>> getKeywordInvertedIndex() {
@@ -90,7 +94,12 @@ public class IndexServiceImpl implements IndexService {
 		return keywordInvertedIndex;
 	}
 
-
+	/**
+	 * Read data from csv and map it to User bean.
+	 * 
+	 * @param source - complete path of csv
+	 * @return List<User> - csv data as list of User
+	 */
 	@SuppressWarnings("unchecked")
 	private List<User> readDataFromCsv(String source) {
 

@@ -11,6 +11,12 @@ import com.ankitrex.mocksearch.entity.User;
 @Component
 public class TokenizerUtility {
 
+	/**
+	 * generate ngram token for each User object's field
+	 * 
+	 * @param user - user object
+	 * @return List<String> - string tokens
+	 */
 	public List<String> tokenizeUserNgram(User user) {
 
 		List<String> tokens = new ArrayList<>();
@@ -21,14 +27,28 @@ public class TokenizerUtility {
 		return tokens;
 	}
 
+	/**
+	 * ngram tokenize the query in same way it was indexed
+	 * 
+	 * @param query - search query term
+	 * @return List<String> - ngram tokens
+	 */
 	public List<String> tokenizeQueryNgram(String query) {
 
 		return formatAndBreakStringTokenNgram(query);
 	}
 
-	private List<String> formatAndBreakStringTokenNgram(String token) {
+	/**
+	 * format string and generate ngram tokens with minimum gram weight taken from
+	 * constants (3 as of now).
+	 * ankit will be broke into - ank, anki, ankit, nki, nkit, kit
+	 * 
+	 * @param keyword - string to be tokenized
+	 * @return List<String> - tokens
+	 */
+	private List<String> formatAndBreakStringTokenNgram(String keyword) {
 
-		String formattedToken = token.toLowerCase().trim();
+		String formattedToken = keyword.toLowerCase().trim();
 
 		List<String> tokens = new ArrayList<>();
 
@@ -41,6 +61,12 @@ public class TokenizerUtility {
 		return tokens;
 	}
 
+	/**
+	 * generate full keyword tokens for first, middle and last names
+	 * 
+	 * @param user - user object 
+	 * @return List<String> - tokens
+	 */
 	public List<String> tokenizeUserKeyword(User user) {
 
 		List<String> tokens = new ArrayList<>();
@@ -52,11 +78,23 @@ public class TokenizerUtility {
 		return tokens;
 	}
 
+	/**
+	 * tokenize keywords in the query in same way it was indexed
+	 * 
+	 * @param query - search query term
+	 * @return List<String> - keyword tokens
+	 */
 	public String tokenizeQueryKeyword(String query) {
 
 		return formatAndBreakStringTokenKeyword(query);
 	}
 
+	/**
+	 * lowercase and trim the string token
+	 * 
+	 * @param token - input string
+	 * @return String - formatted token
+	 */
 	private String formatAndBreakStringTokenKeyword(String token) {
 
 		return token.toLowerCase().trim();

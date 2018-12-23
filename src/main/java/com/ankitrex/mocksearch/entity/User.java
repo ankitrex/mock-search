@@ -1,5 +1,6 @@
 package com.ankitrex.mocksearch.entity;
 
+import com.ankitrex.mocksearch.util.Constants;
 import com.opencsv.bean.CsvBindByName;
 
 import lombok.Data;
@@ -7,12 +8,12 @@ import lombok.Data;
 @Data
 public class User {
 
-	@CsvBindByName(column = "First Name")
+	@CsvBindByName(column = Constants.FIRST_NAME_HEADER)
 	private String	firstName;
 
-	@CsvBindByName(column = "Middle Name")
+	@CsvBindByName(column = Constants.MIDDLE_NAME_HEADER)
 	private String	middleName;
 
-	@CsvBindByName(column = "Last Name")
+	@CsvBindByName(column = Constants.LAST_NAME_HEADER)
 	private String	lastName;
 }

@@ -1,13 +1,10 @@
 package com.ankitrex.mocksearch.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.DoubleAdder;
 import java.util.stream.Collectors;
 
@@ -30,7 +27,7 @@ public class SearchServiceImpl implements SearchService {
 	TokenizerUtility tokenizerUtility;
 
 	@Override
-	public List<SearchResult> performSearchOnIndex(String query) {
+	public List<SearchResult> performSearchOnIndex(String query, Integer maxResults) {
 
 		List<User> users = indexService.getIndexedUsers();
 		SortedMap<String, List<Integer>> keywordInvertedIndex = indexService.getKeywordInvertedIndex();
@@ -41,32 +38,35 @@ public class SearchServiceImpl implements SearchService {
 		String keywordQueryToken = tokenizerUtility.tokenizeQueryKeyword(query);
 		SortedMap<String, List<Integer>> keywordMatchMap = keywordInvertedIndex.subMap(keywordQueryToken,
 				keywordQueryToken + Character.MAX_VALUE);
-		
+
 		for (Entry<String, List<Integer>> entry : keywordMatchMap.entrySet()) {
-			
+
 			Double score = (double) keywordQueryToken.length() / entry.getKey().length();
-			
+
 			entry.getValue().forEach(index -> {
 				scores.putIfAbsent(index, new DoubleAdder());
 				scores.get(index).add(score);
 			});
 		}
 
-		List<String> queryTokens = tokenizerUtility.tokenizeQueryNgram(query);
-		for (String token : queryTokens) {
+		if (scores.size() < maxResults) {
 
-			if (ngramInvertedIndex.containsKey(token)) {
-				Double score = Math.pow((double) token.length() / query.length(), 3);
-				List<Integer> indices = ngramInvertedIndex.get(token);
-				indices.forEach(index -> {
-					scores.putIfAbsent(index, new DoubleAdder());
-					scores.get(index).add(score);
-				});
+			List<String> queryTokens = tokenizerUtility.tokenizeQueryNgram(query);
+			for (String token : queryTokens) {
+
+				if (ngramInvertedIndex.containsKey(token)) {
+					Double score = Math.pow((double) token.length() / query.length(), 3);
+					List<Integer> indices = ngramInvertedIndex.get(token);
+					indices.forEach(index -> {
+						scores.putIfAbsent(index, new DoubleAdder());
+						scores.get(index).add(score);
+					});
+				}
 			}
 		}
 
 		return scores.entrySet().stream()
-				.sorted((e1, e2) -> Double.valueOf(e2.getValue().doubleValue()).compareTo(e1.getValue().doubleValue()))
+				.sorted((e1, e2) -> Double.valueOf(e2.getValue().doubleValue()).compareTo(e1.getValue().doubleValue())).limit(maxResults)
 				.map(x -> formatUserResult(users.get(x.getKey()), x.getValue().doubleValue()))
 				.collect(Collectors.toList());
 

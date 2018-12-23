@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.ankitrex.mocksearch.entity.User;
@@ -32,8 +33,11 @@ public class IndexServiceImpl implements IndexService {
 	@Autowired
 	TokenizerUtility tokenizerUtility;
 
-	private String filePath = "src/main/resources/";
-	private String fileName = "data.csv";
+	@Value("${index.source.file.path}")
+	private String filePath;
+	
+	@Value("${index.source.file.name}")
+	private String fileName;
 
 	private List<User> users;
 

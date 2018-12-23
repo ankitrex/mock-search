@@ -6,5 +6,5 @@ import com.ankitrex.mocksearch.entity.SearchResult;
 
 public interface SearchService {
 
-	List<SearchResult> performSearchOnIndex(String query);
+	List<SearchResult> performSearchOnIndex(String query, Integer maxResults);
 }

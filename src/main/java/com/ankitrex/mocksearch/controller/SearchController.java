@@ -20,12 +20,12 @@ public class SearchController {
 	SearchService searchService;
 
 	@GetMapping("/search")
-	public List<SearchResult> search(@RequestParam(name = "query", required = true) String searchQuery) {
+	public List<SearchResult> search(@RequestParam(name = "query", required = true) String searchQuery, @RequestParam(name="maxResults", defaultValue="20", required=false) Integer maxResults) {
 
 		if (searchQuery.length() < Constants.MINIMUM_TOKEN_LENGTH) {
 			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Search query must be atleast 3 characters long.");
 		}
 
-		return searchService.performSearchOnIndex(searchQuery);
+		return searchService.performSearchOnIndex(searchQuery, maxResults);
 	}
 }

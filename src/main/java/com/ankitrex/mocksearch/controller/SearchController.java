@@ -13,19 +13,29 @@ import com.ankitrex.mocksearch.entity.SearchResult;
 import com.ankitrex.mocksearch.service.SearchService;
 import com.ankitrex.mocksearch.util.Constants;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@Slf4j
 public class SearchController {
 
 	@Autowired
 	SearchService searchService;
 
 	@GetMapping("/search")
-	public List<SearchResult> search(@RequestParam(name = "query", required = true) String searchQuery, @RequestParam(name="maxResults", defaultValue="20", required=false) Integer maxResults) {
+	public List<SearchResult> search(@RequestParam(name = "query", required = true) String searchQuery,
+			@RequestParam(name = "maxResults", defaultValue = "20", required = false) Integer maxResults) {
 
+		long start = System.currentTimeMillis();
 		if (searchQuery.length() < Constants.MINIMUM_TOKEN_LENGTH) {
-			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Search query must be atleast 3 characters long.");
+			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+					"Search query must be atleast 3 characters long.");
 		}
 
-		return searchService.performSearchOnIndex(searchQuery, maxResults);
+		List<SearchResult> results = searchService.performSearchOnIndex(searchQuery, maxResults);
+		long end = System.currentTimeMillis();
+		log.info(String.format("Time to search, score and rank: %dms", (end - start)));
+		
+		return results;
 	}
 }

@@ -25,9 +25,15 @@ public class IndexController {
 		return indexService.getIndexedUsers();
 	}
 
-	@GetMapping("/tokens")
-	public Map<String, List<Integer>> getAllTokens() {
+	@GetMapping("/dense-tokens")
+	public Map<String, List<Integer>> getAllDenseTokens() {
 
-		return indexService.getInvertedIndex();
+		return indexService.getNgramInvertedIndex();
+	}
+	
+	@GetMapping("/sparse-tokens")
+	public Map<String, List<Integer>> getAllSparseTokens() {
+
+		return indexService.getKeywordInvertedIndex();
 	}
 }

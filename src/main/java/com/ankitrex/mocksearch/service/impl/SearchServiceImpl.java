@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.DoubleAdder;
 import java.util.stream.Collectors;
@@ -32,17 +33,31 @@ public class SearchServiceImpl implements SearchService {
 	public List<SearchResult> performSearchOnIndex(String query) {
 
 		List<User> users = indexService.getIndexedUsers();
-		Map<String, List<Integer>> invertedIndex = indexService.getInvertedIndex();
-
-		List<String> queryTokens = tokenizerUtility.tokenizeQuery(query);
+		SortedMap<String, List<Integer>> keywordInvertedIndex = indexService.getKeywordInvertedIndex();
+		Map<String, List<Integer>> ngramInvertedIndex = indexService.getNgramInvertedIndex();
 
 		Map<Integer, DoubleAdder> scores = new HashMap<>();
 
+		String keywordQueryToken = tokenizerUtility.tokenizeQueryKeyword(query);
+		SortedMap<String, List<Integer>> keywordMatchMap = keywordInvertedIndex.subMap(keywordQueryToken,
+				keywordQueryToken + Character.MAX_VALUE);
+		
+		for (Entry<String, List<Integer>> entry : keywordMatchMap.entrySet()) {
+			
+			Double score = (double) keywordQueryToken.length() / entry.getKey().length();
+			
+			entry.getValue().forEach(index -> {
+				scores.putIfAbsent(index, new DoubleAdder());
+				scores.get(index).add(score);
+			});
+		}
+
+		List<String> queryTokens = tokenizerUtility.tokenizeQueryNgram(query);
 		for (String token : queryTokens) {
 
-			if (invertedIndex.containsKey(token)) {
+			if (ngramInvertedIndex.containsKey(token)) {
 				Double score = Math.pow((double) token.length() / query.length(), 3);
-				List<Integer> indices = invertedIndex.get(token);
+				List<Integer> indices = ngramInvertedIndex.get(token);
 				indices.forEach(index -> {
 					scores.putIfAbsent(index, new DoubleAdder());
 					scores.get(index).add(score);
@@ -55,43 +70,6 @@ public class SearchServiceImpl implements SearchService {
 				.map(x -> formatUserResult(users.get(x.getKey()), x.getValue().doubleValue()))
 				.collect(Collectors.toList());
 
-//		List<Integer> indices = new ArrayList<>();
-//		for (String token : queryTokens) {
-//
-//			if (invertedIndex.containsKey(token)) {
-//				indices.addAll(invertedIndex.get(token));
-//			}
-//		}
-//		
-//		Collections.sort(indices);
-//
-//		Integer lastIndex = indices.get(0);
-//		Double score = 1.0;
-//		for (int i = 1; i < indices.size(); i++) {
-//			Integer currentIndex = indices.get(i);
-//			if (lastIndex.intValue() == currentIndex.intValue()) {
-//				score++;
-//			}
-//			else {
-//				SearchResult searchResult = new SearchResult();
-//				searchResult.setName(formatUserResult(users.get(lastIndex)));
-//				searchResult.setScore(score);
-//				result.add(searchResult);
-//
-//				lastIndex = currentIndex;
-//				score = 1.0;
-//			}
-//			if (i == indices.size() - 1) {
-//				SearchResult searchResult = new SearchResult();
-//				searchResult.setName(formatUserResult(users.get(currentIndex)));
-//				searchResult.setScore(score);
-//				result.add(searchResult);
-//			}
-//		}
-//
-//		Collections.sort(result, (SearchResult s1, SearchResult s2) -> s2.getScore().compareTo(s1.getScore()));
-//
-//		return result;
 	}
 
 	private SearchResult formatUserResult(User user, Double score) {

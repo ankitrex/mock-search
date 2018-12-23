@@ -6,5 +6,5 @@ public class Constants {
 
 	}
 
-	public static final Integer TOKEN_LENGTH = 3;
+	public static final Integer MINIMUM_TOKEN_LENGTH = 3;
 }

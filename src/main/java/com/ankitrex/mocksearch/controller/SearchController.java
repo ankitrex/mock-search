@@ -22,7 +22,7 @@ public class SearchController {
 	@GetMapping("/search")
 	public List<SearchResult> search(@RequestParam(name = "query", required = true) String searchQuery) {
 
-		if (searchQuery.length() < Constants.TOKEN_LENGTH) {
+		if (searchQuery.length() < Constants.MINIMUM_TOKEN_LENGTH) {
 			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Search query must be atleast 3 characters long.");
 		}
 

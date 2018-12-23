@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
 
@@ -28,14 +30,16 @@ import lombok.extern.slf4j.Slf4j;
 public class IndexServiceImpl implements IndexService {
 
 	@Autowired
-	TokenizerUtility						tokenizerUtility;
+	TokenizerUtility tokenizerUtility;
 
-	private String							filePath		= "src/main/resources/";
-	private String							fileName		= "data2.csv";
+	private String filePath = "src/main/resources/";
+	private String fileName = "data.csv";
 
-	private List<User>						users;
+	private List<User> users;
 
-	private Map<String, List<Integer>>	invertedIndex	= new HashMap<>();
+	private Map<String, List<Integer>> ngramInvertedIndex = new HashMap<>();
+
+	private SortedMap<String, List<Integer>> keywordInvertedIndex = new TreeMap<>();
 
 	@Override
 	@PostConstruct
@@ -47,11 +51,18 @@ public class IndexServiceImpl implements IndexService {
 
 			User user = users.get(i);
 
-			List<String> tokens = tokenizerUtility.tokenizeUser(user);
-			for (String token : tokens) {
+			List<String> ngramTokens = tokenizerUtility.tokenizeUserNgram(user);
+			for (String token : ngramTokens) {
 
-				invertedIndex.putIfAbsent(token, new ArrayList<Integer>());
-				invertedIndex.get(token).add(i);
+				ngramInvertedIndex.putIfAbsent(token, new ArrayList<Integer>());
+				ngramInvertedIndex.get(token).add(i);
+			}
+			
+			List<String> keywordTokens = tokenizerUtility.tokenizeUserKeyword(user);
+			for(String token : keywordTokens) {
+				
+				keywordInvertedIndex.putIfAbsent(token, new ArrayList<Integer>());
+				keywordInvertedIndex.get(token).add(i);
 			}
 		}
 	}
@@ -63,10 +74,18 @@ public class IndexServiceImpl implements IndexService {
 	}
 
 	@Override
-	public Map<String, List<Integer>> getInvertedIndex() {
+	public Map<String, List<Integer>> getNgramInvertedIndex() {
 
-		return invertedIndex;
+		return ngramInvertedIndex;
 	}
+	
+
+	@Override
+	public SortedMap<String, List<Integer>> getKeywordInvertedIndex() {
+
+		return keywordInvertedIndex;
+	}
+
 
 	@SuppressWarnings("unchecked")
 	private List<User> readDataFromCsv(String source) {
@@ -74,18 +93,16 @@ public class IndexServiceImpl implements IndexService {
 		try (Reader reader = Files.newBufferedReader(Paths.get(source))) {
 
 			@SuppressWarnings("rawtypes")
-			CsvToBean<User> csvToBean = new CsvToBeanBuilder(reader).withType(User.class).withIgnoreLeadingWhiteSpace(true).build();
+			CsvToBean<User> csvToBean = new CsvToBeanBuilder(reader).withType(User.class)
+					.withIgnoreLeadingWhiteSpace(true).build();
 
 			return csvToBean.parse();
-		}
-		catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			log.error(String.format("%s file not found", fileName), e);
-		}
-		catch (IOException e1) {
+		} catch (IOException e1) {
 			log.error(String.format("error reading file %s", fileName), e1);
 		}
 
 		return new ArrayList<>();
 	}
-
 }

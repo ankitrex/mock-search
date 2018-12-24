@@ -37,8 +37,7 @@ public class SearchServiceImpl implements SearchService {
 		Map<Integer, DoubleAdder> scores = new HashMap<>();
 
 		// get keyword token and get submap of keywordInvertedIndex that begins
-		// with
-		// input keyword
+		// with input keyword
 		String keywordQueryToken = tokenizerUtility.tokenizeQueryKeyword(query);
 		SortedMap<String, List<Integer>> keywordMatchMap = keywordInvertedIndex.subMap(keywordQueryToken, keywordQueryToken + Character.MAX_VALUE);
 
@@ -46,8 +45,7 @@ public class SearchServiceImpl implements SearchService {
 		for (Entry<String, List<Integer>> entry : keywordMatchMap.entrySet()) {
 
 			// substring matched directly affects the score
-			// kat matched with kate will have more score than kat matched with
-			// katelyn
+			// kat matched with kate will have more score than kat matched with katelyn
 			Double score = (double) keywordQueryToken.length() / entry.getKey().length();
 
 			entry.getValue().forEach(index -> {
@@ -60,8 +58,7 @@ public class SearchServiceImpl implements SearchService {
 		if (scores.size() < maxResults) {
 
 			// generate query tokens for search string and get all the users
-			// that contain
-			// the token
+			// that contain the token
 			List<String> queryTokens = tokenizerUtility.tokenizeQueryNgram(query);
 			for (String token : queryTokens) {
 
@@ -84,8 +81,7 @@ public class SearchServiceImpl implements SearchService {
 		}
 
 		// sort the scores map, limit the number of results, fetch data from
-		// user
-		// object, format the result and return it
+		// user object, format the result and return it
 		return scores.entrySet().stream().sorted((e1, e2) -> Double.valueOf(e2.getValue().doubleValue()).compareTo(e1.getValue().doubleValue())).limit(maxResults)
 				.map(x -> formatUserResult(users.get(x.getKey()), x.getValue().doubleValue())).collect(Collectors.toList());
 

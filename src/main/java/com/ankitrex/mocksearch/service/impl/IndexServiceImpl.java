@@ -31,19 +31,19 @@ import lombok.extern.slf4j.Slf4j;
 public class IndexServiceImpl implements IndexService {
 
 	@Autowired
-	TokenizerUtility tokenizerUtility;
+	TokenizerUtility							tokenizerUtility;
 
 	@Value("${index.source.file.path}")
-	private String filePath;
+	private String								filePath;
 
 	@Value("${index.source.file.name}")
-	private String fileName;
+	private String								fileName;
 
-	private List<User> users;
+	private List<User>							users;
 
-	private Map<String, List<Integer>> ngramInvertedIndex = new HashMap<>();
+	private Map<String, List<Integer>>			ngramInvertedIndex		= new HashMap<>();
 
-	private SortedMap<String, List<Integer>> keywordInvertedIndex = new TreeMap<>();
+	private SortedMap<String, List<Integer>>	keywordInvertedIndex	= new TreeMap<>();
 
 	// postconstruct to run method after all the beans are initialized
 	@Override
@@ -52,12 +52,12 @@ public class IndexServiceImpl implements IndexService {
 
 		// read data from csv
 		users = readDataFromCsv(filePath + fileName);
-		
+
 		// generate indexes for all users
 		for (int i = 0; i < users.size(); i++) {
 
 			User user = users.get(i);
-			
+
 			// generate ngram tokens and store
 			List<String> ngramTokens = tokenizerUtility.tokenizeUserNgram(user);
 			for (String token : ngramTokens) {
@@ -65,7 +65,7 @@ public class IndexServiceImpl implements IndexService {
 				ngramInvertedIndex.putIfAbsent(token, new ArrayList<Integer>());
 				ngramInvertedIndex.get(token).add(i);
 			}
-			
+
 			// generate keyword tokens and store
 			List<String> keywordTokens = tokenizerUtility.tokenizeUserKeyword(user);
 			for (String token : keywordTokens) {
@@ -97,8 +97,9 @@ public class IndexServiceImpl implements IndexService {
 	/**
 	 * Read data from csv and map it to User bean.
 	 * 
-	 * @param source - complete path of csv
-	 * @return List<User> - csv data as list of User
+	 * @param source
+	 *            complete path of csv
+	 * @return csv data as list of User
 	 */
 	@SuppressWarnings("unchecked")
 	private List<User> readDataFromCsv(String source) {
@@ -106,13 +107,14 @@ public class IndexServiceImpl implements IndexService {
 		try (Reader reader = Files.newBufferedReader(Paths.get(source))) {
 
 			@SuppressWarnings("rawtypes")
-			CsvToBean<User> csvToBean = new CsvToBeanBuilder(reader).withType(User.class)
-					.withIgnoreLeadingWhiteSpace(true).build();
+			CsvToBean<User> csvToBean = new CsvToBeanBuilder(reader).withType(User.class).withIgnoreLeadingWhiteSpace(true).build();
 
 			return csvToBean.parse();
-		} catch (FileNotFoundException e) {
+		}
+		catch (FileNotFoundException e) {
 			log.error(String.format("%s file not found", fileName), e);
-		} catch (IOException e1) {
+		}
+		catch (IOException e1) {
 			log.error(String.format("error reading file %s", fileName), e1);
 		}
 

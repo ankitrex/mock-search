@@ -1,7 +1,6 @@
 package com.ankitrex.mocksearch.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -14,8 +13,9 @@ public class TokenizerUtility {
 	/**
 	 * generate ngram token for each User object's field
 	 * 
-	 * @param user - user object
-	 * @return List<String> - string tokens
+	 * @param user
+	 *            user object
+	 * @return String tokens
 	 */
 	public List<String> tokenizeUserNgram(User user) {
 
@@ -30,8 +30,9 @@ public class TokenizerUtility {
 	/**
 	 * ngram tokenize the query in same way it was indexed
 	 * 
-	 * @param query - search query term
-	 * @return List<String> - ngram tokens
+	 * @param query
+	 *            search query term
+	 * @return ngram tokens
 	 */
 	public List<String> tokenizeQueryNgram(String query) {
 
@@ -39,11 +40,12 @@ public class TokenizerUtility {
 	}
 
 	/**
-	 * format string and generate ngram tokens with minimum gram weight taken from
-	 * constants (3 as of now).
-	 * ankit will be broke into - ank, anki, ankit, nki, nkit, kit
+	 * format string and generate ngram tokens with minimum gram weight taken
+	 * from constants (3 as of now). ankit will be broke into - ank, anki,
+	 * ankit, nki, nkit, kit
 	 * 
-	 * @param keyword - string to be tokenized
+	 * @param keyword
+	 *            string to be tokenized
 	 * @return List<String> - tokens
 	 */
 	private List<String> formatAndBreakStringTokenNgram(String keyword) {
@@ -64,8 +66,9 @@ public class TokenizerUtility {
 	/**
 	 * generate full keyword tokens for first, middle and last names
 	 * 
-	 * @param user - user object 
-	 * @return List<String> - tokens
+	 * @param user
+	 *            user object
+	 * @return tokens
 	 */
 	public List<String> tokenizeUserKeyword(User user) {
 
@@ -81,8 +84,9 @@ public class TokenizerUtility {
 	/**
 	 * tokenize keywords in the query in same way it was indexed
 	 * 
-	 * @param query - search query term
-	 * @return List<String> - keyword tokens
+	 * @param query
+	 *            search query term
+	 * @return keyword tokens
 	 */
 	public String tokenizeQueryKeyword(String query) {
 
@@ -92,8 +96,9 @@ public class TokenizerUtility {
 	/**
 	 * lowercase and trim the string token
 	 * 
-	 * @param token - input string
-	 * @return String - formatted token
+	 * @param token
+	 *            input string
+	 * @return formatted token
 	 */
 	private String formatAndBreakStringTokenKeyword(String token) {
 

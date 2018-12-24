@@ -1,0 +1,6 @@
+com.ankitrex.mocksearch
+com.ankitrex.mocksearch.controller
+com.ankitrex.mocksearch.entity
+com.ankitrex.mocksearch.service
+com.ankitrex.mocksearch.service.impl
+com.ankitrex.mocksearch.util

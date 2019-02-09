@@ -46,7 +46,7 @@ public class SearchController {
 		List<SearchResult> results = searchService.performSearchOnIndex(searchQuery, maxResults);
 
 		log.info(String.format("Time to search, score, filter and rank: %dms", System.currentTimeMillis() - start));
-
+		log.info("testttt");
 		return results;
 	}
 }
